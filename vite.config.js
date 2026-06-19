@@ -14,7 +14,7 @@ export default defineConfig({
         description: 'Daftar Harga Sembako Warung Budhe',
         theme_color: '#f97316',
         background_color: '#fff8f0',
-        display: 'standalone',
+        display: 'fullscreen',
         start_url: '/',
         icons: [
           {
