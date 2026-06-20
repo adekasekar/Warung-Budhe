@@ -42,13 +42,13 @@ export default function PublicView() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <div>
             <h1 style={{ color: 'white', margin: 0, fontSize: '20px', fontWeight: 'bold', letterSpacing: '1px' }}>🛒 Warung Budhe</h1>
-            <p style={{ color: '#1c569c', margin: 0, fontSize: '12px' }}>Daftar Harga Sembako Hari Ini</p>
+            <p style={{ color: '#e3efff', margin: 0, fontSize: '12px' }}>Daftar Harga Sembako</p>
           </div>
           <button
             onClick={() => navigate('/admin')}
             style={{ background: 'rgba(255,255,255,0.15)', color: 'white', border: '1px solid rgba(255,255,255,0.4)', borderRadius: '8px', padding: '8px 14px', cursor: 'pointer', fontSize: '13px', fontWeight: 'bold' }}
           >
-            🔐 Login
+            Login
           </button>
         </div>
 
@@ -74,16 +74,24 @@ export default function PublicView() {
         )}
 {filtered.map(item => (
   <div key={item.id} style={{
-    background: 'white', borderRadius: '12px', padding: '14px',
-    boxShadow: '0 2px 8px rgba(28,86,156,0.1)',
-    borderTop: '4px solid #1c569c',
-    display: 'flex', flexDirection: 'column', gap: '6px'
-  }}>
+  background: 'white', borderRadius: '12px', overflow: 'hidden',
+  boxShadow: '0 2px 8px rgba(28,86,156,0.1)',
+  borderTop: '4px solid #1c569c',
+  display: 'flex', flexDirection: 'column'
+}}>
+  {item.foto
+    ? <img src={item.foto} alt={item.nama} style={{ width: '100%', height: '120px', objectFit: 'cover' }} />
+    : <div style={{ width: '100%', height: '80px', background: '#f0f4ff', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '32px' }}>🛒</div>
+  }
+  <div style={{ padding: '12px', display: 'flex', flexDirection: 'column', gap: '4px' }}>
     <div style={{ fontWeight: 'bold', fontSize: '15px', color: '#1c569c' }}>{item.nama}</div>
-    <div style={{ fontSize: '12px', color: '#1c569c' }}>per {item.satuan} • {item.kategori}</div>
-    <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#1c569c', marginTop: '4px' }}>{formatHarga(item.harga)}</div>
+    {item.merek && <div style={{ fontSize: '11px', color: '#2d7dd2' }}>🏷️ {item.merek}</div>}
+    <div style={{ fontSize: '12px', color: '#1c569c' }}>per {item.jumlah || '1'} {item.satuan}</div>
+    {item.deskripsi && <div style={{ fontSize: '11px', color: '#6b7280' }}>{item.deskripsi}</div>}
+    <div style={{ fontSize: '16px', fontWeight: 'bold', color: '#1c569c', marginTop: '4px' }}>{formatHarga(item.harga)}</div>
     <div style={{ fontSize: '10px', color: '#9ecbff' }}>Diperbarui: {formatTanggal(item.diperbarui)}</div>
   </div>
+</div>
 ))}
       </div>
 
