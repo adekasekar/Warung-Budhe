@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { supabase } from '../supabase'
 
 export default function AdminDashboard() {
   const [barang, setBarang] = useState([])
@@ -14,9 +15,16 @@ export default function AdminDashboard() {
       navigate('/admin')
       return
     }
-    const data = localStorage.getItem('sembako')
-    if (data) setBarang(JSON.parse(data))
+    fetchBarang()
   }, [])
+
+  const fetchBarang = async () => {
+    const { data, error } = await supabase
+      .from('barang')
+      .select('*')
+      .order('nama', { ascending: true })
+    if (!error) setBarang(data)
+  }
 
   const uploadFoto = async (file) => {
     setUploadingFoto(true)
@@ -32,27 +40,34 @@ export default function AdminDashboard() {
     setUploadingFoto(false)
   }
 
-  const simpan = () => {
+  const simpan = async () => {
     if (!form.nama || !form.harga) return alert('Nama dan harga wajib diisi!')
-    let data
-    if (editId !== null) {
-      data = barang.map(b => b.id === editId ? { ...b, ...form, harga: Number(form.harga), diperbarui: new Date().toISOString() } : b)
-    } else {
-      const baru = { id: Date.now(), ...form, harga: Number(form.harga), diperbarui: new Date().toISOString() }
-      data = [...barang, baru]
+    const payload = {
+      nama: form.nama,
+      merek: form.merek,
+      varian: form.varian,
+      harga: Number(form.harga),
+      satuan: form.satuan,
+      jumlah: form.jumlah,
+      deskripsi: form.deskripsi,
+      foto: form.foto,
+      diperbarui: new Date().toISOString()
     }
-    localStorage.setItem('sembako', JSON.stringify(data))
-    setBarang(data)
-    setForm({ nama: '', merek: '', harga: '', varian: '', satuan: 'kg', jumlah: '', deskripsi: '', foto: '' })
+    if (editId !== null) {
+      await supabase.from('barang').update(payload).eq('id', editId)
+    } else {
+      await supabase.from('barang').insert(payload)
+    }
+    await fetchBarang()
+    setForm({ nama: '', merek: '', varian: '', harga: '', satuan: 'kg', jumlah: '', deskripsi: '', foto: '' })
     setEditId(null)
     setShowModal(false)
   }
 
-  const hapus = (id) => {
+  const hapus = async (id) => {
     if (!confirm('Yakin hapus barang ini?')) return
-    const data = barang.filter(b => b.id !== id)
-    localStorage.setItem('sembako', JSON.stringify(data))
-    setBarang(data)
+    await supabase.from('barang').delete().eq('id', id)
+    await fetchBarang()
   }
 
   const bukaEdit = (item) => {
@@ -87,7 +102,6 @@ export default function AdminDashboard() {
 
   return (
     <div style={{ minHeight: '100vh', background: '#dedee6', fontFamily: 'sans-serif' }}>
-      {/* Header */}
       <div style={{ background: 'linear-gradient(135deg, #1c569c, #2d7dd2)', padding: '16px 20px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
         <div>
           <h2 style={{ color: 'white', margin: 0, fontSize: '18px' }}>🛒 Warung Budhe</h2>
@@ -99,12 +113,11 @@ export default function AdminDashboard() {
       </div>
 
       <div style={{ padding: '16px', maxWidth: '600px', margin: '0 auto' }}>
-        {/* Form Tambah */}
         <div style={{ background: 'white', borderRadius: '12px', padding: '20px', marginBottom: '20px', boxShadow: '0 2px 8px rgba(28,86,156,0.1)', borderTop: '4px solid #1c569c' }}>
           <h3 style={{ margin: '0 0 16px', color: '#1c569c' }}>➕ Tambah Barang</h3>
           <input placeholder="Nama barang" value={form.nama} onChange={e => setForm({ ...form, nama: e.target.value })} style={inputStyle} />
           <input placeholder="Merek (opsional)" value={form.merek} onChange={e => setForm({ ...form, merek: e.target.value })} style={inputStyle} />
-          <input placeholder="Varian produk (opsional, misal: Merah, 1kg, Premium)" value={form.varian} onChange={e => setForm({ ...form, varian: e.target.value })} style={inputStyle} />
+          <input placeholder="Varian produk (opsional)" value={form.varian} onChange={e => setForm({ ...form, varian: e.target.value })} style={inputStyle} />
           <input placeholder="Harga (angka saja)" type="number" value={form.harga} onChange={e => setForm({ ...form, harga: e.target.value })} style={inputStyle} />
           <div style={{ display: 'flex', gap: '10px' }}>
             <input placeholder="Jumlah" type="number" value={form.jumlah} onChange={e => setForm({ ...form, jumlah: e.target.value })} style={{ ...inputStyle, flex: 1 }} />
@@ -117,7 +130,7 @@ export default function AdminDashboard() {
               <option value="botol">botol</option>
               <option value="buah">buah</option>
               <option value="ikat">ikat</option>
-              <option value="dus">dus</option>
+              <option value="pcs">pcs</option>
             </select>
           </div>
           <FotoUpload />
@@ -127,7 +140,6 @@ export default function AdminDashboard() {
           </button>
         </div>
 
-        {/* Daftar Barang */}
         <h3 style={{ color: '#1c569c', marginBottom: '12px' }}>Daftar Barang ({barang.length})</h3>
         {barang.map(item => (
           <div key={item.id} style={{ background: 'white', borderRadius: '12px', padding: '16px', marginBottom: '10px', boxShadow: '0 2px 8px rgba(28,86,156,0.1)', borderLeft: '4px solid #1c569c' }}>
@@ -135,7 +147,8 @@ export default function AdminDashboard() {
               <div style={{ flex: 1 }}>
                 {item.foto && <img src={item.foto} alt={item.nama} style={{ width: '100%', borderRadius: '8px', marginBottom: '8px', maxHeight: '120px', objectFit: 'cover' }} />}
                 <div style={{ fontWeight: 'bold', color: '#1c569c' }}>{item.nama}</div>
-                {item.merek && <div style={{ fontSize: '12px', color: '#2d7dd2', marginTop: '2px' }}>🏷️ {item.merek}</div>}
+                {item.merek && <div style={{ fontSize: '12px', color: '#2d7dd2' }}>🏷️ {item.merek}</div>}
+                {item.varian && <div style={{ fontSize: '12px', color: '#2d7dd2' }}>✨ {item.varian}</div>}
                 <div style={{ color: '#2d7dd2', fontWeight: 'bold', fontSize: '15px', marginTop: '4px' }}>{formatHarga(item.harga)}</div>
                 <div style={{ fontSize: '12px', color: '#9ecbff' }}>per {item.jumlah || '1'} {item.satuan}</div>
                 {item.deskripsi && <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>{item.deskripsi}</div>}
@@ -149,14 +162,13 @@ export default function AdminDashboard() {
         ))}
       </div>
 
-      {/* Modal Edit */}
       {showModal && (
         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.5)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, padding: '16px' }}>
           <div style={{ background: 'white', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', borderTop: '4px solid #1c569c', maxHeight: '90vh', overflowY: 'auto' }}>
             <h3 style={{ margin: '0 0 16px', color: '#1c569c' }}>✏️ Edit Barang</h3>
             <input placeholder="Nama barang" value={form.nama} onChange={e => setForm({ ...form, nama: e.target.value })} style={inputStyle} />
+            <input placeholder="Merek (opsional)" value={form.merek} onChange={e => setForm({ ...form, merek: e.target.value })} style={inputStyle} />
             <input placeholder="Varian produk (opsional)" value={form.varian} onChange={e => setForm({ ...form, varian: e.target.value })} style={inputStyle} />
-            <input placeholder="Varian produk (opsional, misal: Merah, 1kg, Premium)" value={form.varian} onChange={e => setForm({ ...form, varian: e.target.value })} style={inputStyle} />
             <input placeholder="Harga (angka saja)" type="number" value={form.harga} onChange={e => setForm({ ...form, harga: e.target.value })} style={inputStyle} />
             <div style={{ display: 'flex', gap: '10px' }}>
               <input placeholder="Jumlah" type="number" value={form.jumlah} onChange={e => setForm({ ...form, jumlah: e.target.value })} style={{ ...inputStyle, flex: 1 }} />
@@ -178,7 +190,7 @@ export default function AdminDashboard() {
               <button onClick={simpan} style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #1c569c, #2d7dd2)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
                 Simpan
               </button>
-              <button onClick={() => { setShowModal(false); setEditId(null); setForm({ nama: '', merek: '', harga: '', varian: '', satuan: 'kg', jumlah: '', deskripsi: '', foto: '' }) }}
+              <button onClick={() => { setShowModal(false); setEditId(null); setForm({ nama: '', merek: '', varian: '', harga: '', satuan: 'kg', jumlah: '', deskripsi: '', foto: '' }) }}
                 style={{ padding: '12px 16px', background: '#dedee6', border: 'none', borderRadius: '8px', cursor: 'pointer', color: '#1c569c', fontWeight: 'bold' }}>
                 Batal
               </button>
