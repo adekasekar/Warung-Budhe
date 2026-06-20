@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 
 export default function AdminDashboard() {
   const [barang, setBarang] = useState([])
-  const [form, setForm] = useState({ nama: '', merek: '', harga: '', satuan: 'kg', jumlah: '', deskripsi: '', foto: '' })
+  const [form, setForm] = useState({ nama: '', merek: '', varian: '', harga: '', satuan: 'kg', jumlah: '', deskripsi: '', foto: '' })
   const [editId, setEditId] = useState(null)
   const [showModal, setShowModal] = useState(false)
   const [uploadingFoto, setUploadingFoto] = useState(false)
@@ -43,7 +43,7 @@ export default function AdminDashboard() {
     }
     localStorage.setItem('sembako', JSON.stringify(data))
     setBarang(data)
-    setForm({ nama: '', merek: '', harga: '', satuan: 'kg', jumlah: '', deskripsi: '', foto: '' })
+    setForm({ nama: '', merek: '', harga: '', varian: '', satuan: 'kg', jumlah: '', deskripsi: '', foto: '' })
     setEditId(null)
     setShowModal(false)
   }
@@ -57,7 +57,7 @@ export default function AdminDashboard() {
 
   const bukaEdit = (item) => {
     setEditId(item.id)
-    setForm({ nama: item.nama, merek: item.merek || '', harga: item.harga, satuan: item.satuan, jumlah: item.jumlah || '', deskripsi: item.deskripsi || '', foto: item.foto || '' })
+    setForm({ nama: item.nama, merek: item.merek || '', varian: item.varian || '', harga: item.harga, satuan: item.satuan, jumlah: item.jumlah || '', deskripsi: item.deskripsi || '', foto: item.foto || '' })
     setShowModal(true)
   }
 
@@ -104,6 +104,7 @@ export default function AdminDashboard() {
           <h3 style={{ margin: '0 0 16px', color: '#1c569c' }}>➕ Tambah Barang</h3>
           <input placeholder="Nama barang" value={form.nama} onChange={e => setForm({ ...form, nama: e.target.value })} style={inputStyle} />
           <input placeholder="Merek (opsional)" value={form.merek} onChange={e => setForm({ ...form, merek: e.target.value })} style={inputStyle} />
+          <input placeholder="Varian produk (opsional, misal: Merah, 1kg, Premium)" value={form.varian} onChange={e => setForm({ ...form, varian: e.target.value })} style={inputStyle} />
           <input placeholder="Harga (angka saja)" type="number" value={form.harga} onChange={e => setForm({ ...form, harga: e.target.value })} style={inputStyle} />
           <div style={{ display: 'flex', gap: '10px' }}>
             <input placeholder="Jumlah" type="number" value={form.jumlah} onChange={e => setForm({ ...form, jumlah: e.target.value })} style={{ ...inputStyle, flex: 1 }} />
@@ -116,7 +117,7 @@ export default function AdminDashboard() {
               <option value="botol">botol</option>
               <option value="buah">buah</option>
               <option value="ikat">ikat</option>
-              <option value="pcs">pcs</option>
+              <option value="dus">dus</option>
             </select>
           </div>
           <FotoUpload />
@@ -154,7 +155,8 @@ export default function AdminDashboard() {
           <div style={{ background: 'white', borderRadius: '16px', padding: '24px', width: '100%', maxWidth: '400px', boxShadow: '0 8px 32px rgba(0,0,0,0.2)', borderTop: '4px solid #1c569c', maxHeight: '90vh', overflowY: 'auto' }}>
             <h3 style={{ margin: '0 0 16px', color: '#1c569c' }}>✏️ Edit Barang</h3>
             <input placeholder="Nama barang" value={form.nama} onChange={e => setForm({ ...form, nama: e.target.value })} style={inputStyle} />
-            <input placeholder="Merek (opsional)" value={form.merek} onChange={e => setForm({ ...form, merek: e.target.value })} style={inputStyle} />
+            <input placeholder="Varian produk (opsional)" value={form.varian} onChange={e => setForm({ ...form, varian: e.target.value })} style={inputStyle} />
+            <input placeholder="Varian produk (opsional, misal: Merah, 1kg, Premium)" value={form.varian} onChange={e => setForm({ ...form, varian: e.target.value })} style={inputStyle} />
             <input placeholder="Harga (angka saja)" type="number" value={form.harga} onChange={e => setForm({ ...form, harga: e.target.value })} style={inputStyle} />
             <div style={{ display: 'flex', gap: '10px' }}>
               <input placeholder="Jumlah" type="number" value={form.jumlah} onChange={e => setForm({ ...form, jumlah: e.target.value })} style={{ ...inputStyle, flex: 1 }} />
@@ -176,7 +178,7 @@ export default function AdminDashboard() {
               <button onClick={simpan} style={{ flex: 1, padding: '12px', background: 'linear-gradient(135deg, #1c569c, #2d7dd2)', color: 'white', border: 'none', borderRadius: '8px', fontWeight: 'bold', cursor: 'pointer' }}>
                 Simpan
               </button>
-              <button onClick={() => { setShowModal(false); setEditId(null); setForm({ nama: '', merek: '', harga: '', satuan: 'kg', jumlah: '', deskripsi: '', foto: '' }) }}
+              <button onClick={() => { setShowModal(false); setEditId(null); setForm({ nama: '', merek: '', harga: '', varian: '', satuan: 'kg', jumlah: '', deskripsi: '', foto: '' }) }}
                 style={{ padding: '12px 16px', background: '#dedee6', border: 'none', borderRadius: '8px', cursor: 'pointer', color: '#1c569c', fontWeight: 'bold' }}>
                 Batal
               </button>

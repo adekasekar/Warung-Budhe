@@ -33,7 +33,11 @@ export default function PublicView() {
   const formatTanggal = (iso) =>
     new Date(iso).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })
 
-  const filtered = barang.filter(b => b.nama.toLowerCase().includes(search.toLowerCase()))
+  const filtered = barang.filter(b => 
+    b.nama.toLowerCase().includes(search.toLowerCase()) ||
+    (b.merek && b.merek.toLowerCase().includes(search.toLowerCase())) ||
+    (b.varian && b.varian.toLowerCase().includes(search.toLowerCase()))
+    )
 
   return (
     <div style={{ minHeight: '100vh', background: '#dedee6', fontFamily: 'sans-serif' }}>
@@ -42,7 +46,7 @@ export default function PublicView() {
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
           <div>
             <h1 style={{ color: 'white', margin: 0, fontSize: '20px', fontWeight: 'bold', letterSpacing: '1px' }}>🛒 Warung Budhe</h1>
-            <p style={{ color: '#e3efff', margin: 0, fontSize: '12px' }}>Daftar Harga Sembako</p>
+                <p style={{ color: '#e3efff', margin: 0, fontSize: '12px' }}>Daftar Harga Sembako</p>
           </div>
           <button
             onClick={() => navigate('/admin')}
