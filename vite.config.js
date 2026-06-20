@@ -12,8 +12,8 @@ export default defineConfig({
         name: 'Warung Budhe',
         short_name: 'Warung Budhe',
         description: 'Daftar Harga Sembako Warung Budhe',
-        theme_color: '#f97316',
-        background_color: '#fff8f0',
+        theme_color: '#1c569c',
+        background_color: '#dedee6',
         display: 'fullscreen',
         start_url: '/',
         icons: [
