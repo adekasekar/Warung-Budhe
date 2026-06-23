@@ -4,7 +4,7 @@ import { supabase } from '../supabase'
 
 export default function PublicView() {
   const [barang, setBarang] = useState([])
-  const [search, setSearch] = useState([])
+  const [search, setSearch] = useState('')
   const [loading, setLoading] = useState(true)
   const navigate = useNavigate()
 
